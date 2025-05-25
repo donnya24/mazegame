@@ -1,0 +1,49 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  color: #222;
+  margin-bottom: 10px;
+}
+
+#game {
+  display: grid;
+  grid-template-columns: repeat(10, 40px);
+  gap: 2px;
+  margin: 20px auto;
+  justify-content: center;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background: #fafafa;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.wall    { background: #333; }
+.player  { background: dodgerblue; }
+.enemy   { background: crimson; }
+.star    { background: gold; }
+.exit    { background: green; }
+
+#restart {
+  background: royalblue;
+  color: white;
+  font-size: 16px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#restart:hover {
+  background: darkblue;
+}

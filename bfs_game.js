@@ -1,28 +1,27 @@
-const gridSize = 10;
+const gridWidth = 20; // Updated width to 20
+const gridHeight = 15; // Updated height to 15
 const gameContainer = document.getElementById("game");
 const statusText = document.getElementById("status");
 
 let grid = [];
 let player = { x: 0, y: 0 };
-let enemies = [
-  { x: 9, y: 9 },
-  { x: 8, y: 8 } // Added a second enemy
-];
+let enemies = [];
 let stars = [];
 let exit = null;
 let score = 0;
 let time = 0;
 let gameOver = false;
 let intervalId = null;
+let level = 1; // Current level
 
 function createGrid() {
   grid = [];
   gameContainer.innerHTML = "";
-  gameContainer.style.gridTemplateColumns = `repeat(${gridSize}, 40px)`;
+  gameContainer.style.gridTemplateColumns = `repeat(${gridWidth}, 40px)`;
 
-  for (let y = 0; y < gridSize; y++) {
+  for (let y = 0; y < gridHeight; y++) {
     const row = [];
-    for (let x = 0; x < gridSize; x++) {
+    for (let x = 0; x < gridWidth; x++) {
       const cell = document.createElement("div");
       cell.className = "cell";
       gameContainer.appendChild(cell);
@@ -33,16 +32,16 @@ function createGrid() {
 
   generateWalls();
   placePlayer();
-  placeEnemies(); // Updated to place multiple enemies
-  placeStars(3);
+  placeEnemies();
+  placeStars(level + 2);
   updateGrid();
 }
 
 function generateWalls() {
-  for (let i = 0; i < 30; i++) {
-    const x = Math.floor(Math.random() * gridSize);
-    const y = Math.floor(Math.random() * gridSize);
-    if ((x === 0 && y === 0) || (x === 9 && y === 9) || (x === 8 && y === 8)) continue; // Avoid placing walls on player or enemies
+  for (let i = 0; i < 50; i++) {
+    const x = Math.floor(Math.random() * gridWidth);
+    const y = Math.floor(Math.random() * gridHeight);
+    if ((x === 0 && y === 0) || enemies.some(enemy => enemy.x === x && enemy.y === y)) continue;
     grid[y][x].type = "wall";
   }
 }
@@ -53,16 +52,23 @@ function placePlayer() {
 }
 
 function placeEnemies() {
-  enemies.forEach(enemy => {
+  enemies = [];
+  const enemyCount = level;
+  for (let i = 0; i < enemyCount; i++) {
+    let enemy;
+    do {
+      enemy = { x: Math.floor(Math.random() * gridWidth), y: Math.floor(Math.random() * gridHeight) };
+    } while (grid[enemy.y][enemy.x].type !== "empty" || (enemy.x === player.x && enemy.y === player.y));
+    enemies.push(enemy);
     grid[enemy.y][enemy.x].type = "enemy";
-  });
+  }
 }
 
 function placeStars(count) {
   stars = [];
   while (stars.length < count) {
-    const x = Math.floor(Math.random() * gridSize);
-    const y = Math.floor(Math.random() * gridSize);
+    const x = Math.floor(Math.random() * gridWidth);
+    const y = Math.floor(Math.random() * gridHeight);
     const cell = grid[y][x];
     if (cell.type === "empty") {
       cell.type = "star";
@@ -73,8 +79,8 @@ function placeStars(count) {
 
 function placeExit() {
   while (true) {
-    const x = Math.floor(Math.random() * gridSize);
-    const y = Math.floor(Math.random() * gridSize);
+    const x = Math.floor(Math.random() * gridWidth);
+    const y = Math.floor(Math.random() * gridHeight);
     if (grid[y][x].type === "empty") {
       grid[y][x].type = "exit";
       exit = { x, y };
@@ -92,7 +98,7 @@ function updateGrid() {
     }
   }
 
-  statusText.textContent = `Waktu: ${time}s | Skor: ${score}`;
+  statusText.textContent = `Waktu: ${time}s | Skor: ${score} | Level: ${level}`;
 }
 
 function movePlayer(dx, dy) {
@@ -102,8 +108,8 @@ function movePlayer(dx, dy) {
   const newY = player.y + dy;
 
   if (
-    newX >= 0 && newX < gridSize &&
-    newY >= 0 && newY < gridSize &&
+    newX >= 0 && newX < gridWidth &&
+    newY >= 0 && newY < gridHeight &&
     grid[newY][newX].type !== "wall"
   ) {
     grid[player.y][player.x].type = "empty";
@@ -118,9 +124,15 @@ function movePlayer(dx, dy) {
     }
 
     if (grid[newY][newX].type === "exit") {
-      alert("Selamat! Kamu berhasil lolos!");
-      clearInterval(intervalId);
-      gameOver = true;
+      alert(`Selamat! Kamu berhasil lolos ke Level ${level + 1}!`);
+      level++;
+      if (level > 3) {
+        alert("Kamu telah menyelesaikan semua level!");
+        clearInterval(intervalId);
+        gameOver = true;
+        return;
+      }
+      createGrid();
       return;
     }
 
@@ -131,8 +143,8 @@ function movePlayer(dx, dy) {
 
 function bfs(start, goal) {
   const queue = [];
-  const visited = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
-  const cameFrom = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
+  const visited = Array.from({ length: gridHeight }, () => Array(gridWidth).fill(false));
+  const cameFrom = Array.from({ length: gridHeight }, () => Array(gridWidth).fill(null));
 
   queue.push(start);
   visited[start.y][start.x] = true;
@@ -151,10 +163,11 @@ function bfs(start, goal) {
       const ny = current.y + dy;
 
       if (
-        nx >= 0 && nx < gridSize &&
-        ny >= 0 && ny < gridSize &&
+        nx >= 0 && nx < gridWidth &&
+        ny >= 0 && ny < gridHeight &&
         !visited[ny][nx] &&
-        grid[ny][nx].type !== "wall"
+        grid[ny][nx].type !== "wall" &&
+        grid[ny][nx].type !== "exit"  // Added condition to avoid moving onto exit
       ) {
         queue.push({ x: nx, y: ny });
         visited[ny][nx] = true;
@@ -175,7 +188,7 @@ function bfs(start, goal) {
 }
 
 function moveEnemies() {
-  enemies.forEach((enemy, index) => {
+  enemies.forEach((enemy) => {
     const path = bfs(enemy, player);
     if (path.length > 0) {
       const next = path[0];
@@ -215,7 +228,7 @@ function startGame() {
   createGrid();
   intervalId = setInterval(() => {
     if (!gameOver) {
-      moveEnemies(); // Updated to move multiple enemies
+      moveEnemies();
       time++;
       updateGrid();
     }
@@ -223,3 +236,4 @@ function startGame() {
 }
 
 startGame();
+

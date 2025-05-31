@@ -47,10 +47,3 @@ h1 {
 #restart:hover {
   background: darkblue;
 }
-
-/* Responsive Design */
-@media (max-width: 600px) {
-  #game {
-    grid-template-columns: repeat(5, 40px); /* Adjust for smaller screens */
-  }
-}

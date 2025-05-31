@@ -1,17 +1,30 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Lariii Selamatkan Diriii!!</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>Maze Game</h1>
   <p>Ambil semua ⭐ dan hindari musuh!</p>
+  
   <div id="game"></div>
   <p id="status">Waktu: 0s | Skor: 0</p>
   <button id="restart">🔁 Mulai Ulang Game</button>
 
+<div id="controls">
+  <div class="arrow-row">
+    <button id="up">↑</button>
+  </div>
+  <div class="arrow-row">
+    <button id="left">←</button>
+    <button id="down">↓</button>
+    <button id="right">→</button>
+  </div>
+</div>
+
   <script src="bfs_game.js"></script>
 </body>
 </html>
+

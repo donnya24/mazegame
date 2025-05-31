@@ -224,6 +224,8 @@ document.getElementById("restart").addEventListener("click", () => {
   location.reload();
 });
 
+// Existing code...
+
 function startGame() {
   createGrid();
   intervalId = setInterval(() => {
@@ -234,6 +236,12 @@ function startGame() {
     }
   }, 1000);
 }
+
+// Add event listeners for the movement buttons
+document.getElementById("up").addEventListener("click", () => movePlayer(0, -1));
+document.getElementById("down").addEventListener("click", () => movePlayer(0, 1));
+document.getElementById("left").addEventListener("click", () => movePlayer(-1, 0));
+document.getElementById("right").addEventListener("click", () => movePlayer(1, 0));
 
 startGame();
 

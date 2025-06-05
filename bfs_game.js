@@ -14,7 +14,7 @@ let score = 0;
 let time = 0;
 let gameOver = false;
 let intervalId = null;
-let level = 1;
+let level = 6;
 
 // Initialize game
 function createGrid() {
